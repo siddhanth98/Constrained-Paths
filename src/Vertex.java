@@ -4,12 +4,14 @@ public class Vertex {
     private int name;
     private int cost;
     private int time;
+    private Vertex pred;
     private ArrayList<ArrayList<Integer>> pathList;
 
     public Vertex(int name, int cost, int time) {
         this.name = name;
         this.cost = cost;
         this.time = time;
+        this.pred = null;
         pathList = new ArrayList<>();
     }
 
@@ -23,6 +25,10 @@ public class Vertex {
 
     public int getTime() {
         return time;
+    }
+
+    public Vertex getPred() {
+        return pred;
     }
 
     public ArrayList<Integer> getPathList() {
@@ -41,6 +47,10 @@ public class Vertex {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public void setPred(Vertex pred) {
+        this.pred = pred;
     }
 
     public void addPathToList(int cost, int time) {

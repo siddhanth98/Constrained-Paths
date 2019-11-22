@@ -64,12 +64,29 @@ public class cpath {
             if(fastestPath == null || path.get(2) < fastestPath.get(1)) {
                 // Only insert the new path to the list if it is faster than the previous fastest path found
                 v1.addPathToList(path.get(1), path.get(2));
+                v1.setCost(v1.getPathList().get(0));
+                v1.setTime(v1.getPathList().get(1));
+
                 for(int j = 0; j < numberOfVertices; j++) {
                     if(adjMatrix[v1.getName()][j][0] != -1)
                         relax(v1.getName(), j, adjMatrix[v1.getName()][j][0], adjMatrix[v1.getName()][j][1]);
                 }
                 mergeSort(0, heap.size()-1, heap);
             }
+        }
+
+        for(Vertex vertex : vertices) {
+            System.out.print(vertex.getName() + " -> ");
+            for(int pathWeight : vertex.getPathList())
+                System.out.print(pathWeight + " ");
+            System.out.println();
+            try {
+                System.out.println("Predecessor - " + vertex.getPred().getName());
+            }
+            catch(NullPointerException ex) {
+                System.out.println("Predecessor - Nil");
+            }
+            System.out.println();
         }
     }
 
@@ -97,12 +114,13 @@ public class cpath {
         if(fastestPath == null || (edgeTime + v1.getTime()) < fastestPath.get(1)) {
             // Only compute new costs and times if new path found is faster than the previous fastest path found to vertex v
 
-            v2.setCost(edgeCost + v1.getCost()); // Wrong updates, cost and time found should be same as that of the fastest path cost and
-                                                 // time found.
-            v2.setTime(edgeTime + v1.getTime());
+            /*if(fastestPath != null) {
+                v2.setCost(fastestPath.get(0));
+                v2.setTime(fastestPath.get(1));
+            }*/
 
-            pred.put(v2, v1); // Set the predecessor node for use later
-            insert(v, v2.getCost(), v2.getTime()); // Insert the new path in the queue
+            v2.setPred(v1);
+            insert(v, edgeCost + v1.getCost(), edgeTime + v1.getTime()); // Insert the new path in the queue
         }
     }
 
