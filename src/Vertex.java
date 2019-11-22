@@ -31,10 +31,14 @@ public class Vertex {
         return pred;
     }
 
-    public ArrayList<Integer> getPathList() {
+    public ArrayList<Integer> getFastestPath() {
         if(this.pathList.size() > 0)
             return this.pathList.get(pathList.size()-1);
         else return null;
+    }
+
+    public ArrayList<ArrayList<Integer>> getPathList() {
+        return pathList;
     }
 
     public void setName(int name) {

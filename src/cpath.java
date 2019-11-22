@@ -10,7 +10,7 @@ public class cpath {
 
 
     public static void main(String[] args) {
-        int numberOfVertices = sc.nextInt(), cost, time, u, v;
+        int numberOfVertices = sc.nextInt(), source = sc.nextInt(), destination = sc.nextInt(), cost, time, u, v;
         ArrayList<Integer> path;
         adjMatrix = new int[numberOfVertices][numberOfVertices][2];
 
@@ -18,14 +18,16 @@ public class cpath {
             // Initialize every vertex in the vertices array
             vertices.add(new Vertex(i, Integer.MIN_VALUE, Integer.MAX_VALUE));
         }
+
         initAdjMatrix(numberOfVertices); // Adjacency matrix initialized to -1's
-        vertices.get(0).setCost(0); vertices.get(0).setTime(0); // Source to Source Traversal has cost 0 and time 0
-        insert(0, 0, 0);
+        vertices.get(source).setCost(0); vertices.get(source).setTime(0); // Source to Source Traversal has cost 0 and time 0
+        insert(source, source, 0, 0);
 
         int numberOfEdges = sc.nextInt();
         ArrayList< HashMap<Vertex, ArrayList<Integer>>> vs;
         HashMap<Vertex, ArrayList<Integer> > edge;
         ArrayList<Integer> weights;
+
 
         for(int i = 0; i < numberOfEdges; i++) {
             u = sc.nextInt(); v = sc.nextInt(); cost = sc.nextInt(); time = sc.nextInt();
@@ -53,19 +55,20 @@ public class cpath {
 
         while(heap.size() > 0) {
             path = heap.remove(0);
-            Vertex v1 = vertices.get(path.get(0));
+            Vertex v1 = vertices.get(path.get(1));
             ArrayList<Integer> fastestPath = new ArrayList<>();
 
             try {
-                fastestPath = v1.getPathList(); // Get the previous fastest path found
+                fastestPath = v1.getFastestPath(); // Get the previous fastest path found
             }
             catch(NullPointerException ex) { }
 
-            if(fastestPath == null || path.get(2) < fastestPath.get(1)) {
+            if(fastestPath == null || path.get(3) < fastestPath.get(1)) {
                 // Only insert the new path to the list if it is faster than the previous fastest path found
-                v1.addPathToList(path.get(1), path.get(2));
-                v1.setCost(v1.getPathList().get(0));
-                v1.setTime(v1.getPathList().get(1));
+                v1.addPathToList(path.get(2), path.get(3));
+                v1.setCost(v1.getFastestPath().get(0));
+                v1.setTime(v1.getFastestPath().get(1));
+                v1.setPred(vertices.get(path.get(0)));
 
                 for(int j = 0; j < numberOfVertices; j++) {
                     if(adjMatrix[v1.getName()][j][0] != -1)
@@ -75,19 +78,26 @@ public class cpath {
             }
         }
 
-        for(Vertex vertex : vertices) {
-            System.out.print(vertex.getName() + " -> ");
-            for(int pathWeight : vertex.getPathList())
-                System.out.print(pathWeight + " ");
-            System.out.println();
-            try {
-                System.out.println("Predecessor - " + vertex.getPred().getName());
-            }
-            catch(NullPointerException ex) {
-                System.out.println("Predecessor - Nil");
-            }
-            System.out.println();
+        System.out.println("Source - " +source+ " Destination - " +destination);
+        System.out.println("List of Paths: ");
+        for(ArrayList<Integer> pathList : vertices.get(destination).getPathList()) {
+            System.out.print(Arrays.toString(pathList.toArray()) + " ");
         }
+        System.out.println();
+
+        ArrayList<Integer> fastestPath = vertices.get(destination).getFastestPath();
+        System.out.println("Fastest Path Cost = " +fastestPath.get(0)+ " units and Time = " +fastestPath.get(1)+ " units");
+        System.out.println("Path :");
+        printPath(vertices.get(destination));
+    }
+
+    private static void printPath(Vertex v) {
+        if(v.getPred() == v) {
+            System.out.print(v.getName());
+            return;
+        }
+        printPath(v.getPred());
+        System.out.print(" -> " + v.getName());
     }
 
     private static void initAdjMatrix(int n) {
@@ -106,7 +116,7 @@ public class cpath {
         ArrayList<Integer> fastestPath = new ArrayList<>();
 
         try {
-            fastestPath = v2.getPathList();
+            fastestPath = v2.getFastestPath();
         }
 
         catch(NullPointerException ex) { }
@@ -119,14 +129,13 @@ public class cpath {
                 v2.setTime(fastestPath.get(1));
             }*/
 
-            v2.setPred(v1);
-            insert(v, edgeCost + v1.getCost(), edgeTime + v1.getTime()); // Insert the new path in the queue
+            insert(u, v, edgeCost + v1.getCost(), edgeTime + v1.getTime()); // Insert the new path in the queue
         }
     }
 
-    private static void insert(int v, int cost, int time) {
+    private static void insert(int u, int v, int cost, int time) {
         ArrayList<Integer> path = new ArrayList<>();
-        path.add(v); path.add(cost); path.add(time);
+        path.add(u); path.add(v); path.add(cost); path.add(time);
         heap.add(path);
     }
 
@@ -145,10 +154,10 @@ public class cpath {
         ArrayList<ArrayList<Integer>> temp = new ArrayList<>();
 
         while(i <= mid && j <= end) {
-            if(arr.get(i).get(1) < arr.get(j).get(1))
+            if(arr.get(i).get(2) < arr.get(j).get(2))
                 temp.add(arr.get(i++));
 
-            else if(arr.get(i).get(1) == arr.get(j).get(1) && arr.get(i).get(2) <= arr.get(j).get(2))
+            else if(arr.get(i).get(2) == arr.get(j).get(2) && arr.get(i).get(3) <= arr.get(j).get(3))
                 temp.add(arr.get(i++));
 
             else temp.add(arr.get(j++));
