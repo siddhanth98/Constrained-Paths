@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class cpath {
@@ -10,48 +13,63 @@ public class cpath {
 
 
     public static void main(String[] args) {
-        int numberOfVertices = sc.nextInt(), source = sc.nextInt(), destination = sc.nextInt(), cost, time, u, v;
+        /*int numberOfVertices = sc.nextInt(), source = sc.nextInt(), destination = sc.nextInt(), cost, time, u, v;
+        adjMatrix = new int[numberOfVertices][numberOfVertices][2];*/
         ArrayList<Integer> path;
-        adjMatrix = new int[numberOfVertices][numberOfVertices][2];
 
-        for(int i = 0; i < numberOfVertices; i++) {
-            // Initialize every vertex in the vertices array
-            vertices.add(new Vertex(i, Integer.MIN_VALUE, Integer.MAX_VALUE));
+        int numberOfVertices = 0, source, destination;
+        String fileName = args[0];
+        source = Integer.parseInt(args[1]); destination = Integer.parseInt(args[2]);
+        int budget = Integer.parseInt(args[3]);
+
+        try {
+            FileReader file = new FileReader(fileName);
+            BufferedReader br = new BufferedReader(file);
+            String input;
+
+            int vertex1, vertex2, line = 0;
+            while((input = br.readLine()) != null) {
+                input = input.stripLeading();
+                String[] splitLine = input.split(" ");
+
+                if(input.length() > 0) {
+                    if (line == 0) {
+                        numberOfVertices = Integer.parseInt(splitLine[0]);
+                        adjMatrix = new int[numberOfVertices][numberOfVertices][2];
+
+                        for(int i = 0; i < numberOfVertices; i++) {
+                            // Initialize every vertex in the vertices array
+                            vertices.add(new Vertex(i, Integer.MIN_VALUE, Integer.MAX_VALUE));
+                        }
+
+                        initAdjMatrix(numberOfVertices); // Adjacency matrix costs and times initialized to -1's
+                        line++;
+                    }
+                    else {
+                        vertex1 = Integer.parseInt(splitLine[0]);
+                        vertex2 = Integer.parseInt(splitLine[1]);
+                        adjMatrix[vertex1][vertex2][0] = Integer.parseInt(splitLine[2]);
+                        adjMatrix[vertex1][vertex2][1] = Integer.parseInt(splitLine[3]);
+                    }
+                }
+            }
         }
 
-        initAdjMatrix(numberOfVertices); // Adjacency matrix initialized to -1's
+        catch(IOException io) { }
+
         vertices.get(source).setCost(0); vertices.get(source).setTime(0); // Source to Source Traversal has cost 0 and time 0
         insert(source, source, 0, 0);
 
-        int numberOfEdges = sc.nextInt();
+        /*int numberOfEdges = sc.nextInt();
         ArrayList< HashMap<Vertex, ArrayList<Integer>>> vs;
         HashMap<Vertex, ArrayList<Integer> > edge;
         ArrayList<Integer> weights;
-
 
         for(int i = 0; i < numberOfEdges; i++) {
             u = sc.nextInt(); v = sc.nextInt(); cost = sc.nextInt(); time = sc.nextInt();
             // For adjacency matrix
             adjMatrix[u][v][0] = cost; adjMatrix[u][v][1] = time;
-
-            // For adjacency list
-            weights = new ArrayList<>();
-            weights.add(cost); weights.add(time);
-
-            edge = new HashMap<>();
-            edge.put(vertices.get(v), weights);
-
-            if(neighbours.containsKey(vertices.get(u))) {
-                vs = neighbours.get(vertices.get(u));
-                vs.add(edge);
-                neighbours.put(vertices.get(u), vs);
-            }
-            else {
-                vs = new ArrayList<>();
-                vs.add(edge);
-                neighbours.put(vertices.get(u), vs);
-            }
-        }
+        }*/
 
         while(heap.size() > 0) {
             path = heap.remove(0);
