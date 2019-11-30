@@ -1,18 +1,19 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Vertex {
     private int name;
     private int cost;
     private int time;
-    private Vertex pred;
     private ArrayList<ArrayList<Integer>> pathList;
+    private HashMap<Integer, Vertex> pathPred;
 
     public Vertex(int name, int cost, int time) {
         this.name = name;
         this.cost = cost;
         this.time = time;
-        this.pred = null;
         pathList = new ArrayList<>();
+        pathPred = new HashMap<>();
     }
 
     public int getName() {
@@ -27,9 +28,6 @@ public class Vertex {
         return time;
     }
 
-    public Vertex getPred() {
-        return pred;
-    }
 
     public ArrayList<Integer> getFastestPath() {
         if(this.pathList.size() > 0)
@@ -41,8 +39,8 @@ public class Vertex {
         return pathList;
     }
 
-    public void setName(int name) {
-        this.name = name;
+    public HashMap<Integer, Vertex> getPathPred() {
+        return pathPred;
     }
 
     public void setCost(int cost) {
@@ -53,13 +51,13 @@ public class Vertex {
         this.time = time;
     }
 
-    public void setPred(Vertex pred) {
-        this.pred = pred;
-    }
-
     public void addPathToList(int cost, int time) {
         ArrayList<Integer> newPath = new ArrayList<>();
         newPath.add(cost); newPath.add(time);
         this.pathList.add(newPath);
+    }
+
+    public void addPredecessorVertex(Vertex vertex, int pathCost) {
+        this.pathPred.put(pathCost, vertex);
     }
 }

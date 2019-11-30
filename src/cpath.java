@@ -4,17 +4,15 @@ import java.io.IOException;
 import java.util.*;
 
 public class cpath {
-    private static ArrayList<Vertex> vertices = new ArrayList<>();
-    private static int[][][] adjMatrix;
-    private static BinaryHeap heap = new BinaryHeap(new ArrayList<>());
+    private static ArrayList<Vertex> vertices = new ArrayList<>(); // Stores vertex i at index i
+    private static int[][][] adjMatrix; // Adjacency Matrix
+    private static BinaryHeap heap = new BinaryHeap(new ArrayList<>()); // Binary heap
     private static Scanner sc = new Scanner(System.in);
-
 
     public static void main(String[] args) {
         int numberOfVertices = 0, source, destination;
         ArrayList<Integer> path;
 
-        // int numberOfVertices = 0, source, destination;
         String fileName = args[0];
         source = Integer.parseInt(args[1]); destination = Integer.parseInt(args[2]);
         int budget = Integer.parseInt(args[3]);
@@ -28,23 +26,26 @@ public class cpath {
 
             int vertex1, vertex2, line = 0;
             while((input = br.readLine()) != null) {
-                input = input.stripLeading();
-                String[] splitLine = input.split(" ");
+                input = input.strip(); // Strip all leading and trailing spaces in the line
+                String[] splitLine = input.split(" "); // Tokenize and store in an array
 
                 if(input.length() > 0) {
                     if (line == 0) {
+                        // First line contains the number of vertices
                         numberOfVertices = Integer.parseInt(splitLine[0]);
                         adjMatrix = new int[numberOfVertices][numberOfVertices][2];
 
+                        // Initialize every vertex in the vertices array
                         for(int i = 0; i < numberOfVertices; i++) {
-                            // Initialize every vertex in the vertices array
                             vertices.add(new Vertex(i, Integer.MIN_VALUE, Integer.MAX_VALUE));
                         }
 
                         initAdjMatrix(numberOfVertices); // Adjacency matrix costs and times initialized to -1's
                         line++;
                     }
+
                     else {
+                        // Store the cost and time in the adjacency matrix
                         vertex1 = Integer.parseInt(splitLine[0]);
                         vertex2 = Integer.parseInt(splitLine[1]);
                         adjMatrix[vertex1][vertex2][0] = Integer.parseInt(splitLine[2]);
@@ -56,6 +57,7 @@ public class cpath {
 
         catch(IOException io) { }
 
+        // Input from the user
         /*for(int i = 0; i < numberOfVertices; i++) {
             // Initialize every vertex in the vertices array
             vertices.add(new Vertex(i, Integer.MIN_VALUE, Integer.MAX_VALUE));
@@ -92,7 +94,7 @@ public class cpath {
                 // Update the cost and time required to reach the vertex using the new path
                 v1.setCost(v1.getFastestPath().get(0));
                 v1.setTime(v1.getFastestPath().get(1));
-                v1.setPred(vertices.get(path.get(0))); // Set the predecessor of the vertex to be used to extract the path later
+                v1.addPredecessorVertex(vertices.get(path.get(0)), path.get(2)); // Add predecessor with corresponding path cost to the hash map
 
                 for(int j = 0; j < numberOfVertices; j++) {
                     if(adjMatrix[v1.getName()][j][0] != -1)
@@ -102,24 +104,41 @@ public class cpath {
         }
 
         System.out.println("Source - " +source+ " Destination - " +destination);
-        System.out.println("List of Paths: ");
+        System.out.println("List of Paths: (Cost, Time) pairs");
         for(ArrayList<Integer> pathList : vertices.get(destination).getPathList()) {
             System.out.print(Arrays.toString(pathList.toArray()) + " ");
         }
         System.out.println();
 
-        ArrayList<Integer> fastestPath = vertices.get(destination).getFastestPath();
-        System.out.println("The fastest path requires a cost of " +fastestPath.get(0)+ " units and time of " +fastestPath.get(1)+ " units");
-        System.out.println("Path :");
-        printPath(vertices.get(destination));
+        ArrayList<Integer> fastestPath = new ArrayList<>();
+
+        for(ArrayList<Integer> p : vertices.get(destination).getPathList()) {
+            if(p.get(0) <= budget)
+                fastestPath = p;
+        }
+
+        try {
+            System.out.println("The fastest path within budget " + budget + " units requires a cost of " + fastestPath.get(0) + " units and time of " + fastestPath.get(1) + " units");
+            System.out.println("Path :");
+            printPath(vertices.get(destination), fastestPath.get(0));
+        }
+
+        catch(NullPointerException | IndexOutOfBoundsException ex) {
+            System.out.println("No feasible path from " +source+ " to " +destination+ " within budget " +budget+ " exists");
+        }
     }
 
-    private static void printPath(Vertex v) {
-        if(v.getPred() == v) {
+    private static void printPath(Vertex v, int pathCost) {
+        if(v.getPathPred().get(pathCost) == v) {
+            // v is the source vertex
             System.out.print(v.getName());
             return;
         }
-        printPath(v.getPred());
+
+        // Get the appropriate predecessor vertex corresponding path cost
+        Vertex pred = v.getPathPred().get(pathCost);
+        int edgeCost = adjMatrix[vertices.get(pred.getName()).getName()][v.getName()][0];
+        printPath(pred, pathCost - edgeCost);
         System.out.print(" -> " + v.getName());
     }
 
@@ -138,7 +157,7 @@ public class cpath {
         ArrayList<Integer> fastestPath = new ArrayList<>();
 
         try {
-            fastestPath = v2.getFastestPath();
+            fastestPath = v2.getFastestPath(); // Get the fastest path previously found
         }
         catch(NullPointerException ex) { }
 

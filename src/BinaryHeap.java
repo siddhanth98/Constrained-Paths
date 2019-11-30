@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 
-// Need to implement operations - decreaseKey, minHeapInsert, etc.
 public class BinaryHeap {
     private ArrayList<ArrayList<Integer>> queue;
     private int heapSize;
@@ -11,9 +10,9 @@ public class BinaryHeap {
     }
 
     public ArrayList<Integer> extractMin() {
-        ArrayList<Integer> min = this.queue.remove(0);
+        ArrayList<Integer> min = this.queue.remove(0); // Remove the root node
         try {
-            this.queue.add(0, this.queue.remove(this.queue.size() - 1));
+            this.queue.add(0, this.queue.remove(this.queue.size() - 1)); // Remove and insert the last node in place of the root
         }
 
         catch(NullPointerException | IndexOutOfBoundsException ex) { }
@@ -21,7 +20,7 @@ public class BinaryHeap {
         this.heapSize--;
         this.minHeapify(0);
 
-        this.sort();
+        this.sort(); // Maintain the order of increasing cost and decreasing time
         return min;
     }
 
@@ -40,10 +39,12 @@ public class BinaryHeap {
         int i = this.queue.size()-1;
         while(i > 0) {
             if (this.heapSize > 1 && this.queue.get(i-1).get(2) > this.queue.get(i).get(2))
+                // Not the required order
                 this.replace(i-1, i);
 
             else if (this.heapSize > 1 && this.queue.get(i-1).get(2) == this.queue.get(i).get(2) &&
                     this.queue.get(i-1).get(3) > this.queue.get(i).get(3))
+                // Not the required order
                 this.replace(i-1, i);
             i--;
         }
@@ -55,11 +56,13 @@ public class BinaryHeap {
 
         int i = this.queue.indexOf(path);
         while(i > 0 && this.queue.get(parent(i)).get(2) > this.queue.get(i).get(2)) {
+            // Preceding element's cost is greater than the current element's cost.
             this.replace(parent(i), i);
             i = parent(i);
         }
 
         if(i > 0 && this.queue.get(parent(i)).get(2) == this.queue.get(i).get(2) && this.queue.get(parent(i)).get(3) > this.queue.get(i).get(3))
+            // Preceding element's time is more than the current element's
             this.replace(parent(i), i);
 
         this.sort();
@@ -69,8 +72,11 @@ public class BinaryHeap {
         int l = left(i), r = right(i), smallest;
 
         if(l < this.heapSize && this.queue.get(l).get(2) < this.queue.get(i).get(2))
+            // Left child cost is smaller than the parent node's cost.
             smallest = l;
+
         else if(l < this.heapSize && this.queue.get(l).get(2) == this.queue.get(i).get(2) && this.queue.get(l).get(3) < this.queue.get(i).get(3))
+            // Left child time is greater than the current element's time.
             smallest = l;
 
         else smallest = i;
@@ -103,7 +109,4 @@ public class BinaryHeap {
         return queue;
     }
 
-    public int getHeapSize() {
-        return heapSize;
-    }
 }
